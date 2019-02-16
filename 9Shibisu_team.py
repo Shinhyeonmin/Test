@@ -1,7 +1,7 @@
 from PIL import Image
 import numpy as np
 
-img = Image.open("./Data/girl.jpg")
+img = Image.open("./file/a2.jpg")
 
 print(img.size)
 

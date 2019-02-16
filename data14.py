@@ -23,7 +23,6 @@ class NKDataset(Dataset):
 
 
         single_image_name = self.image_arr[index]
-
         img_as_img = cv2.imread(single_image_name)
         img_as_img = cv2.resize(img_as_img,(100,100))
 
