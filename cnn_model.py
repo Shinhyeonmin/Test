@@ -1,6 +1,6 @@
 import torch
 
-batch_size = 2
+batch_size = 5
 class Cnn_Model(torch.nn.Module):
 
     def __init__(self):
@@ -14,20 +14,20 @@ class Cnn_Model(torch.nn.Module):
 
         x =self.conv1(x)
 
-        print("conv1",x.size())
+#        print("conv1",x.size())
         x = self.relu(x)
         y = self.conv2(x)
 
-        print("conv2",y.size())
+ #       print("conv2",y.size())
         x = self.relu(y)
         x = x.view(batch_size,-1)
 
-        print('linear', x.size())
+  #      print('linear', x.size())
         x = self.conv3(x)
 
-        print("conv3",x)
+   #     print("conv3",x)
 
-        print("last x size",x.size())
+    #    print("last x size",x.size())
 
         x = x.view(batch_size,5)
 
