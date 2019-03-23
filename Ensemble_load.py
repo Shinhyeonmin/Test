@@ -1,11 +1,11 @@
 from torch.utils.data.dataset import Dataset
 import torch
-from cnn_model_2 import Cnn_Model
-from data14 import NKDataset
+from cnn_model import Cnn_Model
 from tensorboardX import SummaryWriter
 import argparse
 import time
 import os
+from cnn_model_2 import Cnn_Model
 import torchvision.datasets as mdatset
 import torchvision.transforms as transforms
 
@@ -49,49 +49,13 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum/self.count
 
-def train(my_dataset_loader,model,criterion,optimizer,epoch,writer):
-
-    model.train()
-
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
+def test(my_dataset_loader, model,model_2,model_3,criterion, epoch,test_writer):
     losses = AverageMeter()
     top1 = AverageMeter()
 
-    for i, data in enumerate(my_dataset_loader,0):
-        #fc 구조여서 일열로 쫙 펴야 한다.
-        images, label = data
-
-        images = torch.autograd.Variable(images)
-        label = torch.autograd.Variable(label)
-
-        #그냥 images를 하면 데이터 shape가 일정하지 않아서 에러가 난다.
-        y_pred = model(images)
-        #Compute and print loss
-        loss = criterion(y_pred, label)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        output = y_pred.float()
-        loss = loss.float()
-
-        prec1 = accuracy(output.data, label)
-        #prec2 = accuracy(output.data, label)
-
-
-     #   print("here",prec1)
-        losses.update(loss.item(),images.size(0))
-        top1.update(prec1[0].item(), images.size(0))
-
-    writer.add_scalar('Train/loss', losses.avg, epoch)
-    writer.add_scalar('Train/accuaracy',top1.avg,epoch)
-
-def test(my_dataset_loader, model,criterion, epoch,test_writer):
-    losses = AverageMeter()
-    top1 = AverageMeter()
     model.eval()
+    model_2.eval()
+    model_3.eval()
 
     batch_time = AverageMeter()
     end = time.time()
@@ -100,6 +64,10 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
         images, label = data
 
         y_pred = model(images)
+        model_2_pred = model_2(images)
+        model_3_pred = model_3(images)
+
+        y_pred = (y_pred + model_2_pred + model_3_pred)/3
 
         loss = criterion(y_pred, label)
 
@@ -128,7 +96,6 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
     test_writer.add_scalar('test/loss', losses.avg, epoch)
     test_writer.add_scalar('test/accuaracy', top1.avg, epoch)
 
-
 trans = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(1.0,))])
 
 root = './'
@@ -147,7 +114,19 @@ test_loader = torch.utils.data.DataLoader(
                 batch_size=batch_size,
                 shuffle=False)
 
+
 model = Cnn_Model()
+model_2 = Cnn_Model()
+model_3 = Cnn_Model()
+
+checkpoint = torch.load('save_dir/checkpoint_14.tar')
+model.load_state_dict(checkpoint['state_dict'])
+
+checkpoint =torch.load('save_dir/checkpoint_13.tar')
+model_2.load_state_dict(checkpoint['state_dict'])
+
+checkpoint =torch.load('save_dir/checkpoint_11.tar')
+model_3.load_state_dict(checkpoint['state_dict'])
 
 criterion = torch.nn.CrossEntropyLoss(reduction='sum')
 optimizer = torch.optim.SGD(model.parameters(),lr=1e-4)
@@ -155,12 +134,11 @@ optimizer = torch.optim.SGD(model.parameters(),lr=1e-4)
 writer = SummaryWriter('./log')
 test_writer = SummaryWriter('./log/test')
 
-args.save_dir='save_dir_2'
+args.save_dir='save_dir'
 
 for epoch in range(500):
 
-    train(train_loader,model,criterion,optimizer,epoch,writer)
-    test(train_loader,model,criterion,epoch,test_writer)
+    test(test_loader,model,model_2,model_3,criterion,epoch,test_writer)
 
     save_checkpoint({'epoch': epoch +1,
                 'state_dict': model.state_dict()
