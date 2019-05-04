@@ -52,16 +52,13 @@ class AverageMeter(object):
 def train(my_dataset_loader,model,criterion,optimizer,epoch,writer):
 
     model.train()
-
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
 
     for i, data in enumerate(my_dataset_loader,0):
+
         #fc 구조여서 일열로 쫙 펴야 한다.
         images, label = data
-
         images = torch.autograd.Variable(images)
         label = torch.autograd.Variable(label)
 
@@ -73,7 +70,6 @@ def train(my_dataset_loader,model,criterion,optimizer,epoch,writer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
         output = y_pred.float()
         loss = loss.float()
 
