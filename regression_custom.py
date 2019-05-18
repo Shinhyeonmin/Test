@@ -3,6 +3,10 @@ import torch
 from Regression_model import Regression_model
 from data14 import NKDataset
 from tensorboardX import SummaryWriter
+import os
+
+def save_checkpoint(state,filename='checkpoint.pth.bar'):
+    torch.save(state,filename)
 
 class AverageMeter(object):
 
@@ -62,21 +66,33 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
 
     test_writer.add_scalar('test/loss', losses.avg, epoch)
 
-csv_path =  './File/Hyeon.csv'
+csv_path =  './File/study.csv'
 
 custom_dataset = NKDataset(csv_path)
-my_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
+study_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
                                                 batch_size=2,
-                                                shuffle=False,
+                                                shuffle=True,
                                                 num_workers=1)
+csv_path =  './File/test.csv'
+
+custom_dataset = NKDataset(csv_path)
+test_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
+                                                batch_size=2,
+                                                shuffle=True,
+                                                num_workers=1)
+
 
 model = Regression_model()
 criterion = torch.nn.MSELoss(reduction='sum')
-optimizer = torch.optim.SGD(model.parameters(),lr=1e-4)
+optimizer = torch.optim.SGD(model.parameters(),lr=1e-1)
 writer = SummaryWriter('./log')
 test_writer = SummaryWriter('./log/test')
 
 for epoch in range(500):
 
-    train(my_dataset_loader,model,criterion,optimizer,epoch,writer)
-    test(my_dataset_loader,model,criterion,epoch,test_writer)
+    train(study_dataset_loader,model,criterion,optimizer,epoch,writer)
+    test(test_dataset_loader,model,criterion,epoch,test_writer)
+
+    save_checkpoint({'epoch': epoch+1,
+                     'state_dict': model.state_dict()
+                     }, filename=os.path.join("./save_dir",'checkpoint_{}.tar'.format(epoch)))
