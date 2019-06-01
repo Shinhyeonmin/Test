@@ -61,13 +61,13 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
         loss = loss.float()
         losses.update(loss.item(), images.size(0))
 
-    print('*, epoch : {epoch:.2f} Prec@1 {top1.avg:.3f}'
-          .format(epoch = epoch,top1 = losses))
+    print('*, epoch : {epoch:.2f} Prec@1 {losses.avg:.3f}'
+          .format(epoch = epoch,losses = losses))
 
     test_writer.add_scalar('test/loss', losses.avg, epoch)
+    return losses.avg
 
 csv_path =  './File/study.csv'
-
 custom_dataset = NKDataset(csv_path)
 study_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
                                                 batch_size=2,
@@ -84,15 +84,38 @@ test_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
 
 model = Regression_model()
 criterion = torch.nn.MSELoss(reduction='sum')
-optimizer = torch.optim.SGD(model.parameters(),lr=1e-1)
+optimizer = torch.optim.SGD(model.parameters(),lr=1e-3)
 writer = SummaryWriter('./log')
 test_writer = SummaryWriter('./log/test')
 
+lr = 1e-2
+save_dir = "./save_dir"
+
+def adjust_learing_rate(optimizer,epoch,lr):
+    lr = lr*(0.1**(epoch // 10))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+def save_checkpoint(state,filename='checkoint.pth.tar'):
+    torch.save(state,filename)
+
 for epoch in range(500):
 
+    adjust_learing_rate(optimizer, epoch,lr)
     train(study_dataset_loader,model,criterion,optimizer,epoch,writer)
-    test(test_dataset_loader,model,criterion,epoch,test_writer)
 
-    save_checkpoint({'epoch': epoch+1,
-                     'state_dict': model.state_dict()
-                     }, filename=os.path.join("./save_dir",'checkpoint_{}.tar'.format(epoch)))
+    if(epoch == 0):
+        prec = test(test_dataset_loader,model,criterion,epoch,test_writer)
+        best_prec = prec
+    else:
+        prec = test(test_dataset_loader,model,criterion,epoch,test_writer)
+
+    if(prec<best_prec):
+        best_epoch = epoch
+        best_prec = prec
+        save_checkpoint({
+            'epoch':epoch +1,
+            'state_dict':model.state_dict(),
+            'best_prec1':best_prec,
+            'best_epch':best_epoch
+        },filename=os.path.join(save_dir,'checkpoint_{}.tar'.format(epoch)))
