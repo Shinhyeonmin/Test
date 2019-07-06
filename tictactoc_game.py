@@ -25,7 +25,6 @@ def order():
         com = 0
     return (use,com)
 
-
 def place():
     while (True):
         user_num = int(input())
@@ -38,15 +37,18 @@ def place():
 a, b = ask()
 use,com = order()
 turn = 0
+
 if(use == 0):
     turn ='use'
 else:
     turn = 'com'
 
+
 board =['%', '%', '%', '%', '%', '%', '%', '%', '%']
 def game_board():
     for s in range(0,3):
         print(board[s], board[s+1], board[s+2])
+print(game_board())
 
 gameend = False
 while(gameend==False):
