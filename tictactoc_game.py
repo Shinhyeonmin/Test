@@ -128,6 +128,7 @@ def minmax(state, depth, player):
         else:
             if(score[1] < best[1]):
                 best = score  # min
+        print(best)
     return best
 gameend = False
 
@@ -160,8 +161,9 @@ while(gameend==False):
             move = minmax(board, depth, b)
             print("move", move)
             board[move[0]] = b
+        game_board()
         if(win_lose()):
-            print('conuputer win')
+            print('comuputer win')
         else:
             print('user turn')
         turn = 'user'

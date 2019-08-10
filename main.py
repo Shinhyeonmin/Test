@@ -21,7 +21,6 @@ class Sites:
             return 'google'
         elif code == Sites.NAVER_FULL:
             return 'naver'
-
     @staticmethod
     def get_face_url(code):
         if code == Sites.GOOGLE or Sites.GOOGLE_FULL:
@@ -30,37 +29,45 @@ class Sites:
             return "&face=1"
 
 class AutoCrawler:
-    def __init__(self, skip_already_exist=True, n_threads=4,do_google=True, do_Naver=True, download_path='download',
-                 full_resolution = False, face = False):
-
-        self.skip =skip_already_exist
-        self.n_threads=n_threads
+    def __init__(self, skip_already_exist=True, n_threads=4, do_google=True, do_naver=True, download_path='download',
+                 full_resolution=False, face=False):
+        """
+        :param skip_already_exist: Skips keyword already downloaded before. This is needed when re-downloading.
+        :param n_threads: Number of threads to download.
+        :param do_google: Download from google.com (boolean)
+        :param do_naver: Download from naver.com (boolean)
+        :param download_path: Download folder path
+        :param full_resolution: Download full resolution image instead of thumbnails (slow)
+        :param face: Face search mode
+        """
+        self.skip = skip_already_exist
+        self.n_threads = n_threads
         self.do_google = do_google
-        self.do_naver = do_Naver
-        self.download_path=download_path
+        self.do_naver = do_naver
+        self.download_path = download_path
         self.full_resolution = full_resolution
-        self.face=face
-        os.makedirs('./{}'.format(self.download_path),exist_ok=True)
+        self.face = face
+        os.makedirs('./{}'.format(self.download_path), exist_ok=True)
     @staticmethod
     def all_dirs(path):
         paths = []
         for dir in os.listdir(path):
-            if os.path.isdir(path+'/'+dir):
-                paths.append(path+'/'+dir)
-            return paths
-
-    @staticmethod
-    def all_files(path):
-        paths=[]
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                if os.path.isfile(path+'/'+file):
-                    paths.append(path+'/'+file)
+            if os.path.isdir(path + '/' + dir):
+                paths.append(path + '/' + dir)
         return paths
 
     @staticmethod
-    def get_extension_from_link(link,default='jpg'):
-        splits = str(link).spilt('.')
+    def all_files(path):
+        paths = []
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                if os.path.isfile(path + '/' + file):
+                    paths.append(path + '/' + file)
+        return paths
+
+    @staticmethod
+    def get_extension_from_link(link, default='jpg'):
+        splits = str(link).split('.')
         if len(splits) == 0:
             return default
         ext = splits[-1].lower()
@@ -72,58 +79,59 @@ class AutoCrawler:
             return 'png'
         else:
             return default
+
     @staticmethod
     def make_dir(dirname):
         current_path = os.getcwd()
-        path = os.path.join(current_path,dirname)
+        path = os.path.join(current_path, dirname)
         if not os.path.exists(path):
             os.makedirs(path)
 
     @staticmethod
     def get_keywords(keywords_file='keywords.txt'):
-        with open(keywords_file,'r',encoding='utf-8-sig') as f:
+        # read search keywords from file
+        with open(keywords_file, 'r', encoding='utf-8-sig') as f:
             text = f.read()
-
-            lines =text.split('\n')
-            lines = filter(lambda  x: x != ''and x is not None,lines)
+            lines = text.split('\n')
+            lines = filter(lambda x: x != '' and x is not None, lines)
             keywords = sorted(set(lines))
-
-        print('{} keywords found: {}'.format(len(keywords),keywords))
-
-        with open(keywords_file, 'w+',encoding='utf-8') as f:
+        print('{} keywords found: {}'.format(len(keywords), keywords))
+        # re-save sorted keywords
+        with open(keywords_file, 'w+', encoding='utf-8') as f:
             for keyword in keywords:
                 f.write('{}\n'.format(keyword))
-            return keywords
+        return keywords
 
-    def save_image_to_file(self,image,file_path):
+    def save_image_to_file(self, image, file_path):
         try:
-            with open('{}'.format(file_path),'wb') as file:
+            with open('{}'.format(file_path), 'wb') as file:
                 shutil.copyfileobj(image.raw, file)
         except Exception as e:
             print('Save failed - {}'.format(e))
 
-    def download_images(self,keyword,links,site_name):
-        self.make_dir('{}/{}'.format(self.download_path,keyword))
+    def download_images(self, keyword, links, site_name):
+        self.make_dir('{}/{}'.format(self.download_path, keyword))
         total = len(links)
         for index, link in enumerate(links):
             try:
-                print('Downloading {} from {}: {} / {}'.format(keyword,site_name,index +1,total))
-                response = requests.get(link,stream =True)
-                self.save_image_to_file(response,'{}/{}/{}_{}.{}'.format(self.download_path,keyword,site_name,str(index).zfill(4),ext))
+                print('Downloading {} from {}: {} / {}'.format(keyword, site_name, index + 1, total))
+                response = requests.get(link, stream=True)
+                ext = self.get_extension_from_link(link)
+                self.save_image_to_file(response, '{}/{}/{}_{}.{}'.format(self.download_path, keyword, site_name, str(index).zfill(4), ext))
                 del response
             except Exception as e:
-                print('Download failed -',e)
+                print('Download failed - ', e)
                 continue
 
-    def download_from_site(self,keyword,site_code):
-        site_name=Sites.get_text(site_code)
-        print('site name',site_name)
+    def download_from_site(self, keyword, site_code):
+        site_name = Sites.get_text(site_code)
+        print('site name ',site_name)
         add_url = Sites.get_face_url(site_code) if self.face else ""
         print('url',add_url)
-        collect=CollectLinks()
+        collect = CollectLinks()  # initialize chrome driver
         print('collection end')
         try:
-            print('Cpllecting links... {} from {}'.format(keyword, site_name))
+            print('Collecting links... {} from {}'.format(keyword, site_name))
             if site_code == Sites.GOOGLE:
                 links = collect.google(keyword, add_url)
             elif site_code == Sites.NAVER:
@@ -139,12 +147,13 @@ class AutoCrawler:
             print('Downloading images from collected links... {} from {}'.format(keyword, site_name))
             self.download_images(keyword, links, site_name)
 
-            print('Done {} : {}'. format(site_name, keyword))
+            print('Done {} : {}'.format(site_name, keyword))
         except Exception as e:
-            print('Exception {}:{} - {}'.format(site_name, keyword,e))
+            print('Exception {}:{} - {}'.format(site_name, keyword, e))
+
     def download(self, args):
         print("download")
-        self.download_from_site(keyword=args[0],site_code=args[1])
+        self.download_from_site(keyword=args[0], site_code=args[1])
 
     def do_crawling(self):
         keywords = self.get_keywords()
@@ -166,7 +175,7 @@ class AutoCrawler:
                 else:
                     tasks.append([keyword, Sites.NAVER])
 
-        print('tasks', tasks)
+        print('tasks',tasks)
         pool = Pool(self.n_threads)
         pool.map_async(self.download, tasks)
         pool.close()
@@ -210,15 +219,15 @@ class AutoCrawler:
         else:
             print('Data imbalance not detected.')
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--skip', type=str, default='true',
-                            help='Skips keyword already downloaded before. This is needed when re-downloading.')
+                        help='Skips keyword already downloaded before. This is needed when re-downloading.')
     parser.add_argument('--threads', type=int, default=4, help='Number of threads to download.')
-    parser.add_argument('--google', type=str, default='true', help='Download from google.com (boolean)')
+    parser.add_argument('--google', type=str, default='False', help='Download from google.com (boolean)')
     parser.add_argument('--naver', type=str, default='true', help='Download from naver.com (boolean)')
-    parser.add_argument('--full', type=str, default='True',
-                            help='Download full resolution image instead of thumbnails (slow)')
+    parser.add_argument('--full', type=str, default='True', help='Download full resolution image instead of thumbnails (slow)')
     parser.add_argument('--face', type=str, default='False', help='Face search mode')
     args = parser.parse_args()
 
@@ -229,10 +238,7 @@ if __name__ == '__main__':
     _full = False if str(args.full).lower() == 'false' else True
     _face = False if str(args.face).lower() == 'false' else True
 
-    print('Options - skip:{}, threads:{}, google:{}, naver:{}, full_resolution:{}, face:{}'.format(_skip, _threads,
-                                                                                                       _google, _naver,
-                                                                                                       _full, _face))
+    print('Options - skip:{}, threads:{}, google:{}, naver:{}, full_resolution:{}, face:{}'.format(_skip, _threads, _google, _naver, _full, _face))
 
-    crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads, do_google=_google, do_Naver=_naver,
-                              full_resolution=_full, face=_face)
+    crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads, do_google=_google, do_naver=_naver, full_resolution=_full, face=_face)
     crawler.do_crawling()
