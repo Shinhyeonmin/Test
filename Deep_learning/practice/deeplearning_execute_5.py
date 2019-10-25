@@ -1,7 +1,6 @@
 #터미널에 python Edin_Dan.py 치기
 import torch
-
-from Khun_Ran import TwoLayerNet
+from TwoLayerNet import TwoLayerNet
 
 N,D_in,H, D_out = 64,1000,100,10
 
