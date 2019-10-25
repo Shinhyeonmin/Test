@@ -30,7 +30,7 @@ def test(my_dataset_loader, model, criterion, epoch):
 
         print(epoch, loss.item())
 
-csv_path = './File/Hyeon.csv'
+csv_path = './hand_img/Hyeon.csv'
 
 custom_dataset = NKDataset(csv_path)
 

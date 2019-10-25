@@ -61,7 +61,7 @@ class CollectLinks:
         links = []
         for box in photo_grid_boxes:
             try:
-                imgs = box.find_elements(By.TAG_NAME, 'img')
+                imgs = box.find_elements(By.TAG_NAME, 'paint_img')
                 for img in imgs:
                     src = img.get_attribute("src")
                     if src[0] != 'd':
@@ -120,7 +120,7 @@ class CollectLinks:
         while True:
             try:
                 imgs = self.browser.find_elements(By.XPATH,
-                                                  '//div[@class="irc_c i8187 immersive-container irc-rcd"]//img[@class="irc_mi"]')
+                                                  '//div[@class="irc_c i8187 immersive-container irc-rcd"]//paint_img[@class="irc_mi"]')
                 for img in imgs:
                     src = img.get_attribute('src')
 
@@ -168,7 +168,7 @@ class CollectLinks:
         while True:
             try:
                 imgs = self.browser.find_elements(By.XPATH,
-                                                  '//div[@class="image_viewer_wrap _sauImageViewer"]//img[@class="_image_source"]')
+                                                  '//div[@class="image_viewer_wrap _sauImageViewer"]//paint_img[@class="_image_source"]')
 
                 for img in imgs:
                     src = img.get_attribute('src')

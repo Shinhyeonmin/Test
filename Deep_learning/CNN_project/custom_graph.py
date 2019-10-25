@@ -96,7 +96,7 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
     test_writer.add_scalar('test/loss', losses.avg, epoch)
     test_writer.add_scalar('test/accuaracy', top1.avg, epoch)
 
-csv_path = './File/Hyeon.csv'
+csv_path = './hand_img/Hyeon.csv'
 
 custom_dataset = NKDataset(csv_path)
 

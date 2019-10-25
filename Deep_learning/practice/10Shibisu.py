@@ -39,7 +39,7 @@ class NKDataset(Dataset):
         return self.data_len
 
 #cav 의 경로 설정해 줘야 함.
-csv_path = './file/Hyeon.csv'
+csv_path = './hand_img/Hyeon.csv'
 
 custom_dataset = NKDataset(csv_path)
 

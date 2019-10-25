@@ -1,7 +1,7 @@
 #사진 편집
 import cv2
 '''
-cv2.imshow('COLOR',img)
+cv2.imshow('COLOR',paint_img)
 cv2.imshow('Gray',w_b)
 cv2.imshow('pure',clean)
 

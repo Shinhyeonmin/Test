@@ -66,13 +66,13 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
     test_writer.add_scalar('test/loss', losses.avg, epoch)
     return losses.avg
 
-csv_path =  './File/study.csv'
+csv_path =  './hand_img/study.csv'
 custom_dataset = NKDataset(csv_path)
 study_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
                                                 batch_size=2,
                                                 shuffle=True,
                                                 num_workers=1)
-csv_path =  './File/test.csv'
+csv_path =  './hand_img/test.csv'
 
 custom_dataset = NKDataset(csv_path)
 test_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,

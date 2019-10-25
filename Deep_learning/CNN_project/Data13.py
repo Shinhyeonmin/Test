@@ -6,7 +6,7 @@ from Deep_learning.CNN_project.coding12 import NKModel
 from Deep_learning.CNN_project.data14 import NKDataset
 
 #Data Load
-csv_path = './File/Hyeon.csv'
+csv_path = './hand_img/Hyeon.csv'
 
 custom_dataset = NKDataset(csv_path)
 

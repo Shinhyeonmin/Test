@@ -201,17 +201,17 @@ class AutoCrawler:
         if len(dict_too_small) >= 1:
             for dir, n_files in dict_too_small.items():
                 print('Data imbalance detected.')
-                print('Below keywords have smaller than 50% of average file count.')
+                print('Below keywords have smaller than 50% of average hand_img count.')
                 print('I recommend you to remove these directories and re-download for that keyword.')
                 print('_________________________________')
-                print('Too small file count directories:')
+                print('Too small hand_img count directories:')
                 print('dir: {}, file_count: {}'.format(dir, n_files))
 
             print("Remove directories above? (y/n)")
             answer = input()
             if answer == 'y':
                 # removing directories too small files
-                print("Removing too small file count directories...")
+                print("Removing too small hand_img count directories...")
                 for dir, n_files in dict_too_small.items():
                     shutil.rmtree(dir)
                     print('Removed {}'.format(dir))
