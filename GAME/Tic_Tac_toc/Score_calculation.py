@@ -1,4 +1,4 @@
-from board import check_game
+from GAME.Tic_Tac_toc.board import check_game
 
 def evaluate(a, b, board):
     if(check_game(b, board)):

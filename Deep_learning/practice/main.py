@@ -3,7 +3,7 @@ import requests
 import shutil
 from multiprocessing import Pool
 import argparse
-from collect import CollectLinks
+from Crawling.collect import CollectLinks
 
 class Sites:
     GOOGLE = 1

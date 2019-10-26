@@ -1,7 +1,6 @@
-from torch.utils.data.dataset import Dataset
 import torch
-from Regression_model import Regression_model
-from data14 import NKDataset
+from Deep_learning.CNN_project.Regression_model import Regression_model
+from Deep_learning.CNN_project.data14 import NKDataset
 from tensorboardX import SummaryWriter
 import os
 

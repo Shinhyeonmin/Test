@@ -1,23 +1,7 @@
-from torch.utils.data.dataset import Dataset
 import torch
-from cnn_model_2 import Cnn_Model
-from data14 import NKDataset
+from Deep_learning.CNN_project.cnn_model import Cnn_Model
+from Deep_learning.CNN_project.data14 import NKDataset
 from tensorboardX import SummaryWriter
-import argparse
-import time
-import os
-import torchvision.datasets as mdatset
-import torchvision.transforms as transforms
-
-parser = argparse.ArgumentParser(description='PyTorch Custom Training')
-parser.add_argument('--print_freq','--p',default=2,type=int,metavar ='N',
-                    help ='number of data loading workers (default: 4)')
-parser.add_argument('--save-import torch.nn.init as initdir',dest = 'save_dir',help = 'The directory used to save the trained models'
-                                                                                    ,default = 'save_layer_load',type=str)
-args = parser.parse_args()
-
-def save_checkpoint(state,filename='checkpoint.pth.bar'):
-    torch.save(state,filename)
 
 def accuracy(output,target,topk=(1,)):
     """Computes the precision@k for the specified valuesof k"""
@@ -52,13 +36,16 @@ class AverageMeter(object):
 def train(my_dataset_loader,model,criterion,optimizer,epoch,writer):
 
     model.train()
+
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
 
     for i, data in enumerate(my_dataset_loader,0):
-
         #fc 구조여서 일열로 쫙 펴야 한다.
         images, label = data
+
         images = torch.autograd.Variable(images)
         label = torch.autograd.Variable(label)
 
@@ -70,6 +57,7 @@ def train(my_dataset_loader,model,criterion,optimizer,epoch,writer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+
         output = y_pred.float()
         loss = loss.float()
 
@@ -88,10 +76,6 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
     losses = AverageMeter()
     top1 = AverageMeter()
     model.eval()
-
-    batch_time = AverageMeter()
-    end = time.time()
-
     for i, data in enumerate(my_dataset_loader,0):
         images, label = data
 
@@ -106,42 +90,20 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
 
         losses.update(loss.item(), images.size(0))
         top1.update(prec1.item(), images.size(0))
-
-        batch_time.update(time.time()-end)
-        end = time.time()
-
-        if i % args.print_freq == 0:
-            print('Test : [{0}/{1}]\t'
-                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})'.format(
-                i,len(my_dataset_loader),batch_time=batch_time,loss=losses,top1=top1
-            ))
-
     print('*, epoch : {epoch:.2f} Prec@1 {top1.avg:.3f}'
           .format(epoch = epoch,top1 = top1))
 
     test_writer.add_scalar('test/loss', losses.avg, epoch)
     test_writer.add_scalar('test/accuaracy', top1.avg, epoch)
 
+csv_path = './File/Hyeon.csv'
 
-trans = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(1.0,))])
+custom_dataset = NKDataset(csv_path)
 
-root = './'
-
-train_set = mdatset.MNIST(root=root, train=True, transform=trans, download=True)
-test_set = mdatset.MNIST(root=root, train=False, transform=trans, download=True)
-
-batch_size = 100
-
-train_loader = torch.utils.data.DataLoader(
-                 dataset=train_set,
-                 batch_size=batch_size,
-                 shuffle=True)
-test_loader = torch.utils.data.DataLoader(
-                dataset=test_set,
-                batch_size=batch_size,
-                shuffle=False)
+my_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
+                                                batch_size=5,
+                                                shuffle=False,
+                                                num_workers=1)
 
 model = Cnn_Model()
 
@@ -150,14 +112,8 @@ optimizer = torch.optim.SGD(model.parameters(),lr=1e-4)
 
 writer = SummaryWriter('./log')
 test_writer = SummaryWriter('./log/test')
-
-args.save_dir='save_dir_2'
-
 for epoch in range(500):
 
-    train(train_loader,model,criterion,optimizer,epoch,writer)
-    test(train_loader,model,criterion,epoch,test_writer)
+    train(my_dataset_loader,model,criterion,optimizer,epoch,writer)
+    test(my_dataset_loader,model,criterion,epoch,test_writer)
 
-    save_checkpoint({'epoch': epoch +1,
-                'state_dict': model.state_dict()
-            }, filename=os.path.join(args.save_dir, 'checkpoint_{}.tar'.format(epoch)))

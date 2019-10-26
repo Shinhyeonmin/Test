@@ -1,6 +1,5 @@
 import pygame
-from map import get_pos_from_number
-from map import get_number
+from GAME.Tic_Tac_toc.map import get_pos_from_number
 
 grid_size = 90
 

@@ -1,7 +1,6 @@
-from torch.utils.data.dataset import Dataset
 import torch
-from cnn_model import Cnn_Model
-from data14 import NKDataset
+from Deep_learning.CNN_project.cnn_model import Cnn_Model
+from Deep_learning.CNN_project.data14 import NKDataset
 
 def train(my_dataset_loader,model,criterion,optimizer,epoch):
     model.train()# -*- coding: utf-8

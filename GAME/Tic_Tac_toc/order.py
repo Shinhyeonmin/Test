@@ -1,17 +1,11 @@
 import random
-from map import get_number
-from math import inf as infinity
-from board import game_board, make_board
-from victor import minmax
-from victor import empty_cells
-from draw_game import Draw
-import pygame
+from GAME.Tic_Tac_toc.draw_game import Draw
 from pygame.locals import *
 import pygame
-from map import get_number
-from turn_place import place
-from board import game_board, make_board
-from victor import win_lose
+from GAME.Tic_Tac_toc.map import get_number
+from GAME.Tic_Tac_toc.turn_place import place
+from GAME.Tic_Tac_toc.board import game_board, make_board
+from GAME.Tic_Tac_toc.victor import win_lose
 
 fps_clock = pygame.time.Clock()
 

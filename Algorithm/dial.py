@@ -1,0 +1,50 @@
+raw_string=input()
+total='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+number_string=[]
+for i in range(len(raw_string)):
+    number_string.append(0)
+for i in range(len(raw_string)):
+    temp=raw_string[i]
+    for j in range(len(total)):
+        if(temp==total[j]):
+            if(j<3):
+                number_string[i]=2
+            elif(3<=j<6):
+                number_string[i]=3
+            elif(6<=j<9):
+                number_string[i]=4
+            elif(9<=j<12):
+                number_string[i]=5
+            elif(12<=j<15):
+                number_string[i]=6
+            elif(15<=j<19):
+                number_string[i]=7
+            elif(19<=j<22):
+                number_string[i]=8
+            elif(22<=j<26):
+                number_string[i]=9
+            else:
+                number_string[i]=0
+a=0
+for j in range(len(number_string)):
+    if(number_string[j]==1):
+        a=a+2
+    elif(number_string[j]==2):
+        a=a+3
+    elif(number_string[j]==3):
+        a=a+4
+    elif(number_string[j]==4):
+        a=a+5
+    elif(number_string[j]==5):
+        a=a+6
+    elif(number_string[j]==6):
+        a=a+7
+    elif(number_string[j]==7):
+        a=a+8
+    elif(number_string[j]==8):
+        a=a+9
+    elif(number_string[j]==9):
+        a=a+10
+    elif(number_string[j]==0):
+        a=a+11
+print(a)

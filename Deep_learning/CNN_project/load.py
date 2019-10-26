@@ -1,7 +1,6 @@
-from torch.utils.data.dataset import Dataset
 import torch
-from cnn_model import Cnn_Model
-from data14 import NKDataset
+from Deep_learning.CNN_project.cnn_model import Cnn_Model
+from Deep_learning.CNN_project.data14 import NKDataset
 from tensorboardX import SummaryWriter
 import argparse
 import time
@@ -136,6 +135,9 @@ my_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
                                                 num_workers=1)
 
 model = Cnn_Model()
+
+checkpoint = torch.load('save_dir/checkpoint_0.tar')
+model.load_state_dict(checkpoint['state_dict'])
 
 criterion = torch.nn.CrossEntropyLoss(reduction='sum')
 optimizer = torch.optim.SGD(model.parameters(),lr=1e-4)

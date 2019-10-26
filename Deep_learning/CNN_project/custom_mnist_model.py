@@ -1,11 +1,11 @@
-from torch.utils.data.dataset import Dataset
 import torch
-from cnn_model import Cnn_Model
-from data14 import NKDataset
+from Deep_learning.CNN_project.cnn_model_2 import Cnn_Model
 from tensorboardX import SummaryWriter
 import argparse
 import time
 import os
+import torchvision.datasets as mdatset
+import torchvision.transforms as transforms
 
 parser = argparse.ArgumentParser(description='PyTorch Custom Training')
 parser.add_argument('--print_freq','--p',default=2,type=int,metavar ='N',
@@ -50,16 +50,13 @@ class AverageMeter(object):
 def train(my_dataset_loader,model,criterion,optimizer,epoch,writer):
 
     model.train()
-
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
 
     for i, data in enumerate(my_dataset_loader,0):
+
         #fc 구조여서 일열로 쫙 펴야 한다.
         images, label = data
-
         images = torch.autograd.Variable(images)
         label = torch.autograd.Variable(label)
 
@@ -71,7 +68,6 @@ def train(my_dataset_loader,model,criterion,optimizer,epoch,writer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
         output = y_pred.float()
         loss = loss.float()
 
@@ -126,19 +122,26 @@ def test(my_dataset_loader, model,criterion, epoch,test_writer):
     test_writer.add_scalar('test/loss', losses.avg, epoch)
     test_writer.add_scalar('test/accuaracy', top1.avg, epoch)
 
-csv_path = './File/Hyeon.csv'
 
-custom_dataset = NKDataset(csv_path)
+trans = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(1.0,))])
 
-my_dataset_loader = torch.utils.data.DataLoader(dataset=custom_dataset,
-                                                batch_size=5,
-                                                shuffle=False,
-                                                num_workers=1)
+root = './'
+
+train_set = mdatset.MNIST(root=root, train=True, transform=trans, download=True)
+test_set = mdatset.MNIST(root=root, train=False, transform=trans, download=True)
+
+batch_size = 100
+
+train_loader = torch.utils.data.DataLoader(
+                 dataset=train_set,
+                 batch_size=batch_size,
+                 shuffle=True)
+test_loader = torch.utils.data.DataLoader(
+                dataset=test_set,
+                batch_size=batch_size,
+                shuffle=False)
 
 model = Cnn_Model()
-
-checkpoint = torch.load('save_dir/checkpoint_0.tar')
-model.load_state_dict(checkpoint['state_dict'])
 
 criterion = torch.nn.CrossEntropyLoss(reduction='sum')
 optimizer = torch.optim.SGD(model.parameters(),lr=1e-4)
@@ -146,12 +149,12 @@ optimizer = torch.optim.SGD(model.parameters(),lr=1e-4)
 writer = SummaryWriter('./log')
 test_writer = SummaryWriter('./log/test')
 
-args.save_dir='save_dir'
+args.save_dir='save_dir_2'
 
 for epoch in range(500):
 
-    train(my_dataset_loader,model,criterion,optimizer,epoch,writer)
-    test(my_dataset_loader,model,criterion,epoch,test_writer)
+    train(train_loader,model,criterion,optimizer,epoch,writer)
+    test(train_loader,model,criterion,epoch,test_writer)
 
     save_checkpoint({'epoch': epoch +1,
                 'state_dict': model.state_dict()

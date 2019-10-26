@@ -1,10 +1,9 @@
 # -*- coding: utf-8
 
 
-from torch.utils.data.dataset import Dataset
 import torch
-from coding12 import NKModel
-from data14 import NKDataset
+from Deep_learning.CNN_project.coding12 import NKModel
+from Deep_learning.CNN_project.data14 import NKDataset
 
 #Data Load
 csv_path = './File/Hyeon.csv'

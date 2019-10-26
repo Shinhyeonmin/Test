@@ -1,6 +1,5 @@
-from board import check_game
-from Score_calculation import evaluate
-from board import game_board
+from GAME.Tic_Tac_toc.board import check_game
+from GAME.Tic_Tac_toc.Score_calculation import evaluate
 from math import inf as infinity
 
 def win_lose(turn,board,a,b):
