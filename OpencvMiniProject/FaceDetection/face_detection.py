@@ -39,7 +39,7 @@ while True:
         cv2.putText(frame, 'Hello', (x+67, y-115), font, 1,(0, 0, 0), 2)
         cv2.putText(frame, 'My', (x-75, y-15), font, 1, (0, 0, 0), 2)
         cv2.putText(frame, 'Friend', (x+260, y-15), font, 1, (0, 0, 0), 2)
-
+        cv2.putText(frame, 'Best', (x+50, y), font, 2, (0, 0, 255), 2)
 
     #Display the resulting frame
     cv2.imshow("Video", frame)
